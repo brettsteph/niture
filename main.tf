@@ -11,11 +11,11 @@ variable "private_key" {}
 variable "ssh_public_key" {}
 
 provider "oci" {
-  tenancy_ocid     = var.tenancy_ocid
-  user_ocid        = var.user_ocid
-  fingerprint      = var.fingerprint
-  private_key      = var.private_key
-  region           = var.region
+  tenancy_ocid = var.tenancy_ocid
+  user_ocid    = var.user_ocid
+  fingerprint  = var.fingerprint
+  private_key  = var.private_key
+  region       = var.region
 }
 
 variable "ad_region_mapping" {
@@ -112,17 +112,18 @@ resource "oci_core_security_list" "tcb_security_list" {
   }
 }
 
-resource "oci_core_instance" "webserver1" {
+resource "oci_core_instance" "webservers" {
+  count               = 2
   availability_domain = data.oci_identity_availability_domain.ad.name
   compartment_id      = var.compartment_ocid
-  display_name        = "webserver1"
+  display_name        = "webserver${count.index + 1}"
   shape               = "VM.Standard.E2.1.Micro"
 
   create_vnic_details {
     subnet_id        = oci_core_subnet.tcb_subnet.id
     display_name     = "primaryvnic"
     assign_public_ip = true
-    hostname_label   = "webserver1"
+    hostname_label   = "webserver${count.index + 1}"
   }
 
   source_details {
